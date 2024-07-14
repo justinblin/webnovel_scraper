@@ -47,4 +47,4 @@ def read_series(series_link: str, chapter_start_index: int = 0, chapter_end_inde
 
 
 # read_chapter("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial/chapter/1121432/chapter-1", "Hell Difficulty Tutorial")
-read_series("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial", 0, 2)
+read_series("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial", 0, 10)
