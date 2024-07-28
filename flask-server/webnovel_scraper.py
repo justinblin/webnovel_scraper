@@ -2,8 +2,18 @@ import requests
 from bs4 import BeautifulSoup
 from pathlib import Path
 import re
+from flask import Flask, request, jsonify
+import traceback
 
-def read_chapter(chapter_link: str, series_title: str = "") -> None:
+app = Flask(__name__)
+
+@app.route("/test", methods=['POST'])
+def test(): # has to return a json
+    data = request.get_json(force=True)
+    return {"status": "hi"}
+
+
+def read_chapter(chapter_link: str, pathway: str) -> None:
     """
     Open and read a chapter then stores it in a file
     """
@@ -21,13 +31,14 @@ def read_chapter(chapter_link: str, series_title: str = "") -> None:
     chapter_content_text = chapter_soup.find("div", class_ = "chapter-content").get_text().strip()
 
     # build folder name if using series_title
-    folder_name = ""
-    if series_title != "":
-        folder_name += "../" + series_title + "/"
-        Path(folder_name).mkdir(parents=True, exist_ok=True)
+    # folder_name = ""
+    # if series_title != "":
+    #     folder_name += "../" + series_title + "/"
+    #     Path(folder_name).mkdir(parents=True, exist_ok=True)
+    Path(pathway).mkdir(parents = True, exist_ok = True)
 
     # write out chapter content
-    file_handler = open(folder_name + chapter_title_text + ".txt", "w")
+    file_handler = open(pathway + chapter_title_text + ".txt", "w")
     file_handler.write(chapter_content_text)
     file_handler.close()
 
@@ -42,7 +53,8 @@ def find_chapter_index_by_name(chapter_html_list, chapter_name: str) -> int:
             return current_chapter_index
     raise Exception("Chapter name \"" + chapter_name + "\" not found")
 
-def read_series(series_link: str, chapter_start_input: int | str = 0, chapter_end_input: int | str = None) -> None:
+
+def read_series(series_link: str, pathway: str, chapter_start_input: int | str = 0, chapter_end_input: int | str = None) -> None:
     """
     Read the chapters of a series and store them into files based on chapter index or name. 
     For search by index, chapter_start_input is inclusive, chapter_end_input is exclusive.
@@ -64,18 +76,46 @@ def read_series(series_link: str, chapter_start_input: int | str = 0, chapter_en
     chapter_html_list = series_soup.find_all("tr", class_ = "chapter-row")
 
     # search by name/get default indices
-    if type(chapter_start_input) == str:
+    if type(chapter_start_input) == str and chapter_start_input != "":
         chapter_start_input: int = find_chapter_index_by_name(chapter_html_list, chapter_start_input)
-    if type(chapter_end_input) == str:
+    elif chapter_start_input == "":
+        chapter_start_input: int = 0
+
+    if type(chapter_end_input) == str and chapter_end_input != "":
         chapter_end_input: int = find_chapter_index_by_name(chapter_html_list, chapter_end_input) + 1
-    elif type(chapter_end_input) == None:
+    elif chapter_end_input == "" or None: # does this work in python?
         chapter_end_input: int = len(chapter_html_list)
 
     # go through the links and read each chapter
     for current_chapter_index in range(chapter_start_input, chapter_end_input):
         current_chapter_html = chapter_html_list[current_chapter_index]
-        read_chapter("https://royalroad.com" + current_chapter_html.find("a")["href"], series_title_text)
+        read_chapter("https://royalroad.com" + current_chapter_html.find("a")["href"], pathway + series_title_text)
 
+
+@app.route("/read_link", methods=['POST']) # is there supposed to be a methods thing here too?, maybe if it's in the header when it's sent, it has to be here
+def read_link(): 
+    try:
+        # Creates the dictionary of {{TAGS}} that can be replaced during preprocessing (excluding examples and dynamic replacements)
+        data = request.get_json(force=True)
+
+        if (data["linkType"] == "chapter"):
+            read_chapter(data["link"], data["pathway"])
+            return jsonify({"status": "read chapter"}) # does jsonify only accept dictionaries? returns have to be jsons
+        
+        elif (data["linkType"] == "series"):
+            read_series(data["link"], data["pathway"], data["chapter_start_input"], data["chapter_end_input"])
+            return jsonify({"status": "read series"})
+        
+        else:
+            return jsonify({"status": "link type incorrect"})
+        
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+if __name__ == "__main__":
+    app.run(debug = True)
 
 # read_chapter("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial/chapter/1121432/chapter-1", "Hell Difficulty Tutorial")
-read_series("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial/", "Chapter 1", "Side story (non-canon) - A Nibble to Remember")
+# read_series("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial/", "Chapter 1", "Side story (non-canon) - A Nibble to Remember")
