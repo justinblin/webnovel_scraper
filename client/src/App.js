@@ -104,12 +104,13 @@ function App() {
           name = "pathway"
           onChange = {handlePathwayChange}
           value = {pathway}
+          placeholder = "ex: C:\Users\justi\Downloads"
           required
         />
 
         <br></br><br></br>
 
-        <label htmlFor = "start-input">(Optional) Enter Chapter Start Name: </label>
+        <label htmlFor = "start-input">(Optional For Series) Chapter Start Name: </label>
         <input
           id = "start-input"
           type = "text"
@@ -120,7 +121,7 @@ function App() {
 
         <br></br><br></br>
 
-        <label htmlFor = "end-input">(Optional) Enter Chapter End Name: </label>
+        <label htmlFor = "end-input">(Optional For Series) Chapter End Name: </label>
         <input
           id = "end-input"
           type = "text"
@@ -131,7 +132,7 @@ function App() {
 
         <br></br><br></br>
 
-        <button type = "submit">Submit Button</button>
+        <button type = "submit">Read Link</button>
       </form>
 
       <p>{result}</p>

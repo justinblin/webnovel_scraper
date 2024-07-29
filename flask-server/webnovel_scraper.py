@@ -32,16 +32,10 @@ def read_chapter(chapter_link: str, pathway: str) -> None:
 
     chapter_content_text = chapter_soup.find("div", class_ = "chapter-content").get_text().strip()
 
-    # build folder name if using series_title
-    # folder_name = ""
-    # if series_title != "":
-    #     folder_name += "../" + series_title + "/"
-    #     Path(folder_name).mkdir(parents=True, exist_ok=True)
-    Path(pathway + "/").mkdir(parents = True, exist_ok = True)
-
     # print(pathway + "/" + chapter_title_text + ".txt")
 
-    # write out chapter content
+    # build folder and write out chapter content
+    Path(pathway + "/").mkdir(parents = True, exist_ok = True)
     file_handler = open(pathway + "/" + chapter_title_text + ".txt", "w")
     file_handler.write(chapter_content_text)
     file_handler.close()
@@ -79,10 +73,6 @@ def read_series(series_link: str, pathway: str, chapter_start_input: int | str =
     series_title_text = "".join( x for x in series_title_text if (x.isalnum() or x in "._- ")) # getting rid of illegal characters in the title
 
     chapter_html_list = series_soup.find_all("tr", class_ = "chapter-row")
-
-    # # convert start/end inputs into proper type
-    # chapter_start_input = int(chapter_start_input) if chapter_start_input.isnumeric() else chapter_start_input
-    # chapter_end_input = int(chapter_end_input) if chapter_end_input.isnumeric() else chapter_end_input
 
     # search by name/get default indices
     if type(chapter_start_input) == str and chapter_start_input != "":
@@ -125,8 +115,3 @@ def read_link():
 
 if __name__ == "__main__":
     app.run(debug = True)
-
-# read_chapter("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial/chapter/1121432/chapter-1", "Hell Difficulty Tutorial")
-# read_series("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial/", "Chapter 1", "Side story (non-canon) - A Nibble to Remember")
-
-# read_chapter('https://www.royalroad.com/fiction/39408/beware-of-chicken/chapter/614571/chapter-2-rice-farming-101', 'C:\\Users\\justi\\Desktop\\Justin Lin\\Personal Projects\\Webnovel Scraper\\Chapters')
