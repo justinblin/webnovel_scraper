@@ -32,7 +32,7 @@ function App() {
       chapterEnd: chapterEnd
     }
     // console.log(data)
-    fetch("/test", { // has to have fetch and then?
+    fetch("/read_link", { // has to have fetch and then?
       method: "POST", // what does method and headers do?
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(data)
