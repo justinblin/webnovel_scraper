@@ -28,6 +28,8 @@ def read_chapter(chapter_link: str, pathway: str) -> None:
 
     chapter_title_text = chapter_soup.find("title").get_text()
     chapter_title_text = chapter_title_text[:chapter_title_text.find("|")].strip()
+    chapter_title_text = "".join( x for x in chapter_title_text if (x.isalnum() or x in "._- ")) # getting rid of illegal characters in the title
+
     chapter_content_text = chapter_soup.find("div", class_ = "chapter-content").get_text().strip()
 
     # build folder name if using series_title
@@ -35,10 +37,12 @@ def read_chapter(chapter_link: str, pathway: str) -> None:
     # if series_title != "":
     #     folder_name += "../" + series_title + "/"
     #     Path(folder_name).mkdir(parents=True, exist_ok=True)
-    Path(pathway).mkdir(parents = True, exist_ok = True)
+    Path(pathway + "/").mkdir(parents = True, exist_ok = True)
+
+    # print(pathway + "/" + chapter_title_text + ".txt")
 
     # write out chapter content
-    file_handler = open(pathway + chapter_title_text + ".txt", "w")
+    file_handler = open(pathway + "/" + chapter_title_text + ".txt", "w")
     file_handler.write(chapter_content_text)
     file_handler.close()
 
@@ -72,8 +76,13 @@ def read_series(series_link: str, pathway: str, chapter_start_input: int | str =
 
     series_title_text = series_soup.find("title").get_text()
     series_title_text = series_title_text[:series_title_text.find("|")].strip()
+    series_title_text = "".join( x for x in series_title_text if (x.isalnum() or x in "._- ")) # getting rid of illegal characters in the title
 
     chapter_html_list = series_soup.find_all("tr", class_ = "chapter-row")
+
+    # # convert start/end inputs into proper type
+    # chapter_start_input = int(chapter_start_input) if chapter_start_input.isnumeric() else chapter_start_input
+    # chapter_end_input = int(chapter_end_input) if chapter_end_input.isnumeric() else chapter_end_input
 
     # search by name/get default indices
     if type(chapter_start_input) == str and chapter_start_input != "":
@@ -89,7 +98,7 @@ def read_series(series_link: str, pathway: str, chapter_start_input: int | str =
     # go through the links and read each chapter
     for current_chapter_index in range(chapter_start_input, chapter_end_input):
         current_chapter_html = chapter_html_list[current_chapter_index]
-        read_chapter("https://royalroad.com" + current_chapter_html.find("a")["href"], pathway + series_title_text)
+        read_chapter("https://royalroad.com" + current_chapter_html.find("a")["href"], pathway + "/" + series_title_text)
 
 
 @app.route("/read_link", methods=['POST']) # is there supposed to be a methods thing here too?, maybe if it's in the header when it's sent, it has to be here
@@ -103,7 +112,7 @@ def read_link():
             return jsonify({"status": "read chapter"}) # does jsonify only accept dictionaries? returns have to be jsons
         
         elif (data["linkType"] == "series"):
-            read_series(data["link"], data["pathway"], data["chapter_start_input"], data["chapter_end_input"])
+            read_series(data["link"], data["pathway"], data["chapterStart"], data["chapterEnd"])
             return jsonify({"status": "read series"})
         
         else:
@@ -119,3 +128,5 @@ if __name__ == "__main__":
 
 # read_chapter("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial/chapter/1121432/chapter-1", "Hell Difficulty Tutorial")
 # read_series("https://www.royalroad.com/fiction/64916/hell-difficulty-tutorial/", "Chapter 1", "Side story (non-canon) - A Nibble to Remember")
+
+# read_chapter('https://www.royalroad.com/fiction/39408/beware-of-chicken/chapter/614571/chapter-2-rice-farming-101', 'C:\\Users\\justi\\Desktop\\Justin Lin\\Personal Projects\\Webnovel Scraper\\Chapters')

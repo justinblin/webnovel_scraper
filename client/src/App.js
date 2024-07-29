@@ -3,7 +3,7 @@ import React, {useState, useEffect} from 'react'
 function App() {
   const [linkType, setLinkType] = useState("chapter")
   const [link, setLink] = useState("")
-  const [pathway, setPathway] = useState("C:\\Users\\Webnovel Chapters\\")
+  const [pathway, setPathway] = useState("")
   const [chapterStart, setChapterStart] = useState("")
   const [chapterEnd, setChapterEnd] = useState("")
   const [result, setResult] = useState("nothing yet")
@@ -31,7 +31,7 @@ function App() {
       chapterStart: chapterStart,
       chapterEnd: chapterEnd
     }
-    // console.log(data)
+    console.log(data)
     fetch("/read_link", { // has to have fetch and then?
       method: "POST", // what does method and headers do?
       headers: {"Content-Type": "application/json"},
@@ -109,7 +109,7 @@ function App() {
 
         <br></br><br></br>
 
-        <label htmlFor = "start-input">(Optional) Enter Chapter Start: </label>
+        <label htmlFor = "start-input">(Optional) Enter Chapter Start Name: </label>
         <input
           id = "start-input"
           type = "text"
@@ -120,7 +120,7 @@ function App() {
 
         <br></br><br></br>
 
-        <label htmlFor = "end-input">(Optional) Enter Chapter End: </label>
+        <label htmlFor = "end-input">(Optional) Enter Chapter End Name: </label>
         <input
           id = "end-input"
           type = "text"
