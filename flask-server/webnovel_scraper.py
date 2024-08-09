@@ -29,14 +29,17 @@ def read_chapter(chapter_link: str, pathway: str) -> None:
     chapter_title_text = chapter_soup.find("title").get_text()
     chapter_title_text = chapter_title_text[:chapter_title_text.find("|")].strip()
     chapter_title_text = "".join( x for x in chapter_title_text if (x.isalnum() or x in "._- ")) # getting rid of illegal characters in the title
+    print(chapter_title_text)
 
     chapter_content_text = chapter_soup.find("div", class_ = "chapter-content").get_text().strip()
+    print("got chapter content text")
+    # print(chapter_content_text)
 
     # print(pathway + "/" + chapter_title_text + ".txt")
 
     # build folder and write out chapter content
     Path(pathway + "/").mkdir(parents = True, exist_ok = True)
-    file_handler = open(pathway + "/" + chapter_title_text + ".txt", "w")
+    file_handler = open(pathway + "/" + chapter_title_text + ".txt", "w", encoding = "utf-8")
     file_handler.write(chapter_content_text)
     file_handler.close()
 
@@ -71,6 +74,7 @@ def read_series(series_link: str, pathway: str, chapter_start_input: int | str =
     series_title_text = series_soup.find("title").get_text()
     series_title_text = series_title_text[:series_title_text.find("|")].strip()
     series_title_text = "".join( x for x in series_title_text if (x.isalnum() or x in "._- ")) # getting rid of illegal characters in the title
+    print(series_title_text)
 
     chapter_html_list = series_soup.find_all("tr", class_ = "chapter-row")
 
@@ -82,7 +86,7 @@ def read_series(series_link: str, pathway: str, chapter_start_input: int | str =
 
     if type(chapter_end_input) == str and chapter_end_input != "":
         chapter_end_input: int = find_chapter_index_by_name(chapter_html_list, chapter_end_input) + 1
-    elif chapter_end_input == "" or None: # does this work in python?
+    elif chapter_end_input == "" or chapter_end_input == None: # does this work in python?
         chapter_end_input: int = len(chapter_html_list)
 
     # go through the links and read each chapter
@@ -94,19 +98,18 @@ def read_series(series_link: str, pathway: str, chapter_start_input: int | str =
 @app.route("/read_link", methods=['POST']) # is there supposed to be a methods thing here too?, maybe if it's in the header when it's sent, it has to be here
 def read_link(): 
     try:
-        # Creates the dictionary of {{TAGS}} that can be replaced during preprocessing (excluding examples and dynamic replacements)
         data = request.get_json(force=True)
 
         if (data["linkType"] == "chapter"):
             read_chapter(data["link"], data["pathway"])
-            return jsonify({"status": "read chapter"}) # does jsonify only accept dictionaries? returns have to be jsons
+            return jsonify({"status": "Read Chapter"}) # does jsonify only accept dictionaries? returns have to be jsons
         
         elif (data["linkType"] == "series"):
             read_series(data["link"], data["pathway"], data["chapterStart"], data["chapterEnd"])
-            return jsonify({"status": "read series"})
+            return jsonify({"status": "Read Series"})
         
         else:
-            return jsonify({"status": "link type incorrect"})
+            return jsonify({"status": "Link Type Incorrect"})
         
     except Exception as e:
         traceback.print_exc()
@@ -115,3 +118,4 @@ def read_link():
 
 if __name__ == "__main__":
     app.run(debug = True)
+    #read_series("https://www.royalroad.com/fiction/75359/on-foreign-soils-we-die", "C:/Users/justi/Desktop/Justin Lin/Personal Projects/Webnovel Scraper/Chapters", "Chapter 17 - A Minute Respite")

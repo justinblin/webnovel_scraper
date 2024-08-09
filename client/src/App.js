@@ -6,7 +6,7 @@ function App() {
   const [pathway, setPathway] = useState("")
   const [chapterStart, setChapterStart] = useState("")
   const [chapterEnd, setChapterEnd] = useState("")
-  const [result, setResult] = useState("nothing yet")
+  const [result, setResult] = useState("Nothing Yet")
 
   // const [data, setData] = useState([{}])
   // useEffect(() => {
@@ -32,6 +32,7 @@ function App() {
       chapterEnd: chapterEnd
     }
     console.log(data)
+    setResult("Loading...")
     fetch("/read_link", { // has to have fetch and then?
       method: "POST", // what does method and headers do?
       headers: {"Content-Type": "application/json"},
@@ -40,7 +41,12 @@ function App() {
     .then((res) => res.json())
     .then((res) => {
       console.log(res)
-      setResult(res.status)
+      if (res.status) {
+        setResult(res.status)
+      }
+      if (res.error) {
+        setResult(res.error)
+      }
     })
   }
 
